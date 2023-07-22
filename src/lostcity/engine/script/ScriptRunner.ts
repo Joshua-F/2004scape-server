@@ -20,6 +20,8 @@ import StringOps from '#lostcity/engine/script/handlers/StringOps.js';
 import NumberOps from '#lostcity/engine/script/handlers/NumberOps.js';
 import DbOps from '#lostcity/engine/script/handlers/DbOps.js';
 import DebugOps from '#lostcity/engine/script/handlers/DebugOps.js';
+import Entity from '#lostcity/entity/Entity.js';
+import Obj from '#lostcity/entity/Obj.js';
 import ScriptPointer from '#lostcity/engine/script/ScriptPointer.js';
 
 export type CommandHandler = (state: ScriptState) => void;
@@ -51,55 +53,50 @@ export default class ScriptRunner {
     /**
      *
      * @param script
-     * @param self
-     * @param target
-     * @param on
+     * @param primaryEntity
+     * @param activeEntities
+     * @param pointers
      * @param args
      */
-    static init(script: Script, self: any = null, target: any = null, on = null, args: ScriptArgument[] | null = []) {
+    static init(script: Script, primaryEntity: Entity | null = null, activeEntities: Entity[] = [], pointers: ScriptPointer[] = [], args: ScriptArgument[] | null = []) {
         const state = new ScriptState(script, args);
-        state.self = self;
+        state.self = primaryEntity;
+        state.pointerSet(...pointers);
 
-        if (self instanceof Player) {
-            state._activePlayer = self;
-            state.pointerAdd(ScriptPointer.ActivePlayer);
-            // temporary, should be supplied manually
-            state.pointerAdd(ScriptPointer.ProtectedActivePlayer);
-        } else if (self instanceof Npc) {
-            state._activeNpc = self;
-            state.pointerAdd(ScriptPointer.ActiveNpc);
-        } else if (self instanceof Loc) {
-            state._activeLoc = self;
-            state.pointerAdd(ScriptPointer.ActiveLoc);
+        if (primaryEntity !== null) {
+            this.setupActiveEntity(state, primaryEntity);
         }
 
-        if (target instanceof Player) {
-            if (self instanceof Player) {
-                state._activePlayer2 = target;
-                state.pointerAdd(ScriptPointer.ActivePlayer2);
-            } else {
-                state._activePlayer = target;
-                state.pointerAdd(ScriptPointer.ActivePlayer);
-            }
-        } else if (target instanceof Npc) {
-            if (self instanceof Npc) {
-                state._activeNpc2 = target;
-                state.pointerAdd(ScriptPointer.ActiveNpc2);
-            } else {
-                state._activeNpc = target;
-                state.pointerAdd(ScriptPointer.ActiveNpc);
-            }
-        } else if (target instanceof Loc) {
-            if (self instanceof Loc) {
-                state._activeLoc2 = target;
-                state.pointerAdd(ScriptPointer.ActiveLoc2);
-            } else {
-                state._activeLoc = target;
-                state.pointerAdd(ScriptPointer.ActiveLoc);
-            }
+        for (const target of activeEntities) {
+            this.setupActiveEntity(state, target);
         }
 
         return state;
+    }
+
+    private static setupActiveEntity(state: ScriptState, entity: Entity) {
+        let activeArray: (Entity | null)[] | null = null;
+
+        if (entity instanceof Player) {
+            activeArray = state._activePlayers;
+        } else if (entity instanceof Npc) {
+            activeArray = state._activeNpcs;
+        } else if (entity instanceof Loc) {
+            activeArray = state._activeLocs;
+        } else if (entity instanceof Obj) {
+            activeArray = state._activeObjs;
+        }
+
+        if (!activeArray) {
+            throw new Error(`Unsupported entity type: ${entity}`);
+        }
+
+        if (activeArray.length >= 2) {
+            throw new Error('Attempting to have more than 2 active entities of the same type.');
+        }
+
+        // push the entity to the proper array
+        activeArray.push(entity);
     }
 
     static execute(state: ScriptState, reset = false, benchmark = false) {

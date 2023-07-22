@@ -7,22 +7,23 @@ const DebugOps: CommandHandlers = {
     },
 
     [ScriptOpcode.ACTIVE_NPC]: (state) => {
-        const activeNpc = state.intOperand === 0 ? state._activeNpc : state._activeNpc2;
+        const activeNpc = state.activeNpc;
         state.pushInt(activeNpc !== null ? 1 : 0);
     },
 
     [ScriptOpcode.ACTIVE_PLAYER]: (state) => {
-        const activePlayer = state.intOperand === 0 ? state._activePlayer : state._activePlayer2;
+        const activePlayer = state.activePlayer;
         state.pushInt(activePlayer !== null ? 1 : 0);
     },
 
     [ScriptOpcode.ACTIVE_LOC]: (state) => {
-        const activeLoc = state.intOperand === 0 ? state._activeLoc : state._activeLoc2;
+        const activeLoc = state.activeLoc;
         state.pushInt(activeLoc !== null ? 1 : 0);
     },
 
     [ScriptOpcode.ACTIVE_OBJ]: (state) => {
-        throw new Error('unimplemented');
+        const activeObj = state.activeObj;
+        state.pushInt(activeObj !== null ? 1 : 0);
     },
 };
 

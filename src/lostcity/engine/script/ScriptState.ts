@@ -7,6 +7,8 @@ import { toInt32 } from '#lostcity/util/Numbers.js';
 import Loc from '#lostcity/entity/Loc.js';
 import ScriptPointer from '#lostcity/engine/script/ScriptPointer.js';
 import DbTableType from '#lostcity/cache/DbTableType';
+import Entity from '#lostcity/entity/Entity.js';
+import Obj from '#lostcity/entity/Obj.js';
 
 export interface GosubStackFrame {
     script: Script,
@@ -52,39 +54,28 @@ export default class ScriptState {
     /**
      * The primary entity.
      */
-    self: any | null = null;
+    self: Entity | null = null;
 
     // active entities
     /**
-     * The primary active player.
+     * Stores the active player pointers.
      */
-    _activePlayer: Player | null = null;
+    _activePlayers: (Player | null)[] = [];
 
     /**
-     * The secondary active player.
-     * @type {Player|null}
+     * Stores the active npc pointers.
      */
-    _activePlayer2: Player | null = null;
+    _activeNpcs: (Npc | null)[] = [];
 
     /**
-     * The primary active npc.
+     * Stores the active loc pointers.
      */
-    _activeNpc: Npc | null = null;
+    _activeLocs: (Loc | null)[] = [];
 
     /**
-     * The secondary active npc.
+     * Stores the active obj pointers.
      */
-    _activeNpc2: Npc | null = null;
-
-    /**
-     * The primary active loc.
-     */
-    _activeLoc: Loc | null = null;
-
-    /**
-     * The secondary active loc.
-     */
-    _activeLoc2: Loc | null = null;
+    _activeObjs: (Obj | null)[] = [];
 
     /**
      * Used for string splitting operations with split_init and related commands.
@@ -176,12 +167,25 @@ export default class ScriptState {
     }
 
     /**
+     * Helper for throwing invalid pointer access.
+     *
+     * @param name The name of the pointer that was invalid.
+     * @param dot The operand value.
+     */
+    private static throwInvalidPointer(name: string, dot: number): never {
+        if (dot === 1) {
+            throw new Error(`Attempt to access null .${name}`);
+        }
+        throw new Error(`Attempt to access null ${name}`);
+    }
+
+    /**
      * Gets the active player. Automatically checks the operand to determine primary and secondary.
      */
-    get activePlayer() {
-        const player = this.intOperand === 0 ? this._activePlayer : this._activePlayer2;
+    get activePlayer(): Player {
+        const player = this._activePlayers[this.intOperand];
         if (player === null) {
-            throw new Error('Attempt to access null active_player');
+            ScriptState.throwInvalidPointer('active_player', this.intOperand);
         }
         return player;
     }
@@ -190,21 +194,17 @@ export default class ScriptState {
      * Sets the active player. Automatically checks the operand to determine primary and secondary.
      * @param player The player to set.
      */
-    set activePlayer(player: Player) {
-        if (this.intOperand === 0) {
-            this._activePlayer = player;
-        } else {
-            this._activePlayer2 = player;
-        }
+    set activePlayer(player: Player | null) {
+        this._activePlayers[this.intOperand] = player;
     }
 
     /**
      * Gets the active npc. Automatically checks the operand to determine primary and secondary.
      */
-    get activeNpc() {
-        const npc = this.intOperand === 0 ? this._activeNpc : this._activeNpc2;
+    get activeNpc(): Npc {
+        const npc = this._activeNpcs[this.intOperand];
         if (npc === null) {
-            throw new Error('Attempt to access null active_npc');
+            ScriptState.throwInvalidPointer('active_npc', this.intOperand);
         }
         return npc;
     }
@@ -213,23 +213,46 @@ export default class ScriptState {
      * Sets the active npc. Automatically checks the operand to determine primary and secondary.
      * @param npc The npc to set.
      */
-    set activeNpc(npc: Npc) {
-        if (this.intOperand === 0) {
-            this._activeNpc = npc;
-        } else {
-            this._activeNpc2 = npc;
-        }
+    set activeNpc(npc: Npc | null) {
+        this._activeNpcs[this.intOperand] = npc;
     }
 
     /**
      * Gets the active location. Automatically checks the operand to determine primary and secondary.
      */
-    get activeLoc() {
-        const loc = this.intOperand === 0 ? this._activeLoc : this._activeLoc2;
+    get activeLoc(): Loc {
+        const loc = this._activeLocs[this.intOperand];
         if (loc === null) {
-            throw new Error('Attempt to access null active_loc');
+            ScriptState.throwInvalidPointer('active_loc', this.intOperand);
         }
         return loc;
+    }
+
+    /**
+     * Sets the active loc. Automatically checks the operand to determine primary and secondary.
+     * @param loc The loc to set.
+     */
+    set activeLoc(loc: Loc | null) {
+        this._activeLocs[this.intOperand] = loc;
+    }
+
+    /**
+     * Gets the active object. Automatically checks the operand to determine primary and secondary.
+     */
+    get activeObj(): Obj {
+        const obj = this._activeObjs[this.intOperand];
+        if (obj === null) {
+            ScriptState.throwInvalidPointer('active_obj', this.intOperand);
+        }
+        return obj;
+    }
+
+    /**
+     * Sets the active obj. Automatically checks the operand to determine primary and secondary.
+     * @param obj The obj to set.
+     */
+    set activeObj(obj: Obj | null) {
+        this._activeObjs[this.intOperand] = obj;
     }
 
     get intOperand(): number {

@@ -3,18 +3,13 @@ import ScriptState from '#lostcity/engine/script/ScriptState.js';
 
 /**
  * Enumeration of possible pointer states used for runtime safety checks.
+ *
+ * Excludes the active entity states since those can be checked when trying to
+ * access the reference.
  */
 enum ScriptPointer {
-    ActivePlayer,
-    ActivePlayer2,
     ProtectedActivePlayer,
     ProtectedActivePlayer2,
-    ActiveNpc,
-    ActiveNpc2,
-    ActiveLoc,
-    ActiveLoc2,
-    ActiveObj,
-    ActiveObj2,
     _LAST
 }
 

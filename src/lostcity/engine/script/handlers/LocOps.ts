@@ -3,11 +3,8 @@ import ScriptOpcode from '#lostcity/engine/script/ScriptOpcode.js';
 import ParamType from '#lostcity/cache/ParamType.js';
 import LocType from '#lostcity/cache/LocType.js';
 import { ParamHelper } from '#lostcity/cache/ParamHelper.js';
-import ScriptPointer, { checkedHandler } from '#lostcity/engine/script/ScriptPointer.js';
 import World from '#lostcity/engine/World.js';
 import Loc from '#lostcity/entity/Loc.js';
-
-const ActiveLoc = [ScriptPointer.ActiveLoc, ScriptPointer.ActiveLoc2];
 
 const LocOps: CommandHandlers = {
     [ScriptOpcode.LOC_ADD]: (state) => {
@@ -22,31 +19,31 @@ const LocOps: CommandHandlers = {
         World.addLoc(loc, duration);
     },
 
-    [ScriptOpcode.LOC_ANGLE]: checkedHandler(ActiveLoc, (state) => {
+    [ScriptOpcode.LOC_ANGLE]: (state) => {
         state.pushInt(state.activeLoc.rotation);
-    }),
+    },
 
-    [ScriptOpcode.LOC_ANIM]: checkedHandler(ActiveLoc, (state) => {
+    [ScriptOpcode.LOC_ANIM]: (state) => {
         throw new Error('unimplemented');
-    }),
+    },
 
-    [ScriptOpcode.LOC_CATEGORY]: checkedHandler(ActiveLoc, (state) => {
+    [ScriptOpcode.LOC_CATEGORY]: (state) => {
         throw new Error('unimplemented');
-    }),
+    },
 
-    [ScriptOpcode.LOC_CHANGE]: checkedHandler(ActiveLoc, (state) => {
+    [ScriptOpcode.LOC_CHANGE]: (state) => {
         throw new Error('unimplemented');
-    }),
+    },
 
-    [ScriptOpcode.LOC_COORD]: checkedHandler(ActiveLoc, (state) => {
+    [ScriptOpcode.LOC_COORD]: (state) => {
         const packed = state.activeLoc.z | (state.activeLoc.x << 14) | (state.activeLoc.level << 28);
         state.pushInt(packed);
-    }),
+    },
 
-    [ScriptOpcode.LOC_DEL]: checkedHandler(ActiveLoc, (state) => {
+    [ScriptOpcode.LOC_DEL]: (state) => {
         const duration = state.popInt();
         World.removeLoc(state.activeLoc, duration);
-    }),
+    },
 
     [ScriptOpcode.LOC_FINDALLZONE]: (state) => {
         throw new Error('unimplemented');
@@ -56,7 +53,7 @@ const LocOps: CommandHandlers = {
         throw new Error('unimplemented');
     },
 
-    [ScriptOpcode.LOC_PARAM]: checkedHandler(ActiveLoc, (state) => {
+    [ScriptOpcode.LOC_PARAM]: (state) => {
         const paramId = state.popInt();
         const param = ParamType.get(paramId);
         const loc = LocType.get(state.activeLoc.type);
@@ -65,19 +62,19 @@ const LocOps: CommandHandlers = {
         } else {
             state.pushInt(ParamHelper.getIntParam(paramId, loc, param.defaultInt));
         }
-    }),
+    },
 
-    [ScriptOpcode.LOC_TYPE]: checkedHandler(ActiveLoc, (state) => {
+    [ScriptOpcode.LOC_TYPE]: (state) => {
         throw new Error('unimplemented');
-    }),
+    },
 
-    [ScriptOpcode.LOC_NAME]: checkedHandler(ActiveLoc, (state) => {
+    [ScriptOpcode.LOC_NAME]: (state) => {
         throw new Error('unimplemented');
-    }),
+    },
 
-    [ScriptOpcode.LOC_SHAPE]: checkedHandler(ActiveLoc, (state) => {
+    [ScriptOpcode.LOC_SHAPE]: (state) => {
         state.pushInt(state.activeLoc.shape);
-    }),
+    },
 };
 
 export default LocOps;

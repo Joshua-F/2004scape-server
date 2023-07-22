@@ -2,6 +2,7 @@ import World from '#lostcity/engine/World.js';
 import ScriptProvider from '#lostcity/engine/script/ScriptProvider.js';
 import ScriptRunner from '#lostcity/engine/script/ScriptRunner.js';
 import Player from '#lostcity/entity/Player.js';
+import ScriptPointer from '#lostcity/engine/script/ScriptPointer.js';
 
 process.env.CLIRUNNER = 'true';
 
@@ -17,7 +18,7 @@ if (!script) {
 const self = Player.load('clirunner');
 World.addPlayer(self);
 
-const state = ScriptRunner.init(script, self);
+const state = ScriptRunner.init(script, self, [], [ScriptPointer.ProtectedActivePlayer]);
 ScriptRunner.execute(state);
 
 process.exit(0);

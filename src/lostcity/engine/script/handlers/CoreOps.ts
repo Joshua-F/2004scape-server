@@ -53,20 +53,22 @@ const CoreOps: CommandHandlers = {
     },
 
     [ScriptOpcode.PUSH_VARP]: (state) => {
-        if (state._activePlayer === null) {
+        const activePlayer = state._activePlayers[0];
+        if (activePlayer === null) {
             throw new Error('No active_player.');
         }
         const varp = state.intOperand;
-        state.pushInt(state._activePlayer.getVarp(varp));
+        state.pushInt(activePlayer.getVarp(varp));
     },
 
     [ScriptOpcode.POP_VARP]: (state) => {
-        if (state._activePlayer === null) {
+        const activePlayer = state._activePlayers[0];
+        if (activePlayer === null) {
             throw new Error('No active_player.');
         }
         const varp = state.intOperand;
         const value = state.popInt();
-        state._activePlayer.setVarp(varp, value);
+        activePlayer.setVarp(varp, value);
     },
 
     [ScriptOpcode.PUSH_VARBIT]: (state) => {

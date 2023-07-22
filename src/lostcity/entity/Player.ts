@@ -35,6 +35,7 @@ import ServerTriggerType from '#lostcity/engine/script/ServerTriggerType.js';
 import { EntityTimer, PlayerTimerType } from '#lostcity/entity/EntityTimer.js';
 import Entity from '#lostcity/entity/Entity.js';
 import Obj from '#lostcity/entity/Obj.js';
+import ScriptPointer from '#lostcity/engine/script/ScriptPointer.js';
 
 // * 10
 const EXP_LEVELS = [
@@ -615,7 +616,7 @@ export default class Player extends PathingEntity {
                 const type = ObjType.get(this.lastItem);
                 const script = ScriptProvider.getByTrigger(trigger, type.id, type.category);
                 if (script) {
-                    this.executeScript(ScriptRunner.init(script, this));
+                    this.executeScript(ScriptRunner.init(script, this, [], [ScriptPointer.ProtectedActivePlayer]));
                 } else {
                     if (!process.env.PROD_MODE) {
                         const objType = ObjType.get(this.lastItem);
@@ -677,7 +678,7 @@ export default class Player extends PathingEntity {
                     const ifType = IfType.get(this.lastCom);
                     const script = ScriptProvider.getByTrigger(ServerTriggerType.IF_BUTTON, ifType.id, -1);
                     if (script) {
-                        this.executeScript(ScriptRunner.init(script, this));
+                        this.executeScript(ScriptRunner.init(script, this, [], [ScriptPointer.ProtectedActivePlayer]));
                     } else {
                         if (!process.env.PROD_MODE) {
                             this.messageGame(`No trigger for [if_button,${ifType.comName}]`);
@@ -723,7 +724,7 @@ export default class Player extends PathingEntity {
 
                 const script = ScriptProvider.getByName(`[if_buttond,${modalType.comName}]`);
                 if (script) {
-                    this.executeScript(ScriptRunner.init(script, this));
+                    this.executeScript(ScriptRunner.init(script, this, [], [ScriptPointer.ProtectedActivePlayer]));
                 } else {
                     console.log(`Unhandled IF_BUTTOND event: ${modalType.comName}`);
                 }
@@ -749,7 +750,7 @@ export default class Player extends PathingEntity {
                 const ifType = IfType.get(this.lastCom);
                 const script = ScriptProvider.getByTrigger(trigger, ifType.id, -1);
                 if (script) {
-                    this.executeScript(ScriptRunner.init(script, this));
+                    this.executeScript(ScriptRunner.init(script, this, [], [ScriptPointer.ProtectedActivePlayer]));
                 } else {
                     if (!process.env.PROD_MODE) {
                         this.messageGame(`No trigger for [${ServerTriggerType.toString(trigger)},${ifType.comName}]`);
@@ -791,7 +792,7 @@ export default class Player extends PathingEntity {
                 }
 
                 if (script) {
-                    this.executeScript(ScriptRunner.init(script, this));
+                    this.executeScript(ScriptRunner.init(script, this, [], [ScriptPointer.ProtectedActivePlayer]));
                 } else {
                     if (!process.env.PROD_MODE) {
                         this.messageGame(`No trigger for [opheldu,${objType.debugname}]`);
@@ -821,7 +822,7 @@ export default class Player extends PathingEntity {
                 const script = ScriptProvider.getByTriggerSpecific(ServerTriggerType.IF_FLASHING_TAB, -1, -1);
 
                 if (script) {
-                    this.executeScript(ScriptRunner.init(script, this));
+                    this.executeScript(ScriptRunner.init(script, this, [], [ScriptPointer.ProtectedActivePlayer]));
                 }
             }
         }
@@ -876,7 +877,7 @@ export default class Player extends PathingEntity {
     onLogin() {
         const loginScript = ScriptProvider.getByTriggerSpecific(ServerTriggerType.LOGIN, -1, -1);
         if (loginScript) {
-            this.executeScript(ScriptRunner.init(loginScript, this));
+            this.executeScript(ScriptRunner.init(loginScript, this, [], [ScriptPointer.ProtectedActivePlayer]));
         }
 
         // normalize client between logins
@@ -1140,7 +1141,7 @@ export default class Player extends PathingEntity {
                     return;
                 }
 
-                this.executeScript(ScriptRunner.init(script, this));
+                this.executeScript(ScriptRunner.init(script, this, [], [ScriptPointer.ProtectedActivePlayer]));
             } break;
         }
     }
@@ -1152,7 +1153,7 @@ export default class Player extends PathingEntity {
 
         const script = ScriptProvider.getByName('[mapenter,_]');
         if (script) {
-            this.executeScript(ScriptRunner.init(script, this));
+            this.executeScript(ScriptRunner.init(script, this, [], [ScriptPointer.ProtectedActivePlayer]));
         }
 
         this.lastX = this.x;
@@ -1297,9 +1298,9 @@ export default class Player extends PathingEntity {
         }
 
         if (ap) {
-            this.apScript = ScriptRunner.init(script, this, target);
+            this.apScript = ScriptRunner.init(script, this, [target], [ScriptPointer.ProtectedActivePlayer]);
         } else {
-            this.opScript = ScriptRunner.init(script, this, target);
+            this.opScript = ScriptRunner.init(script, this, [target], [ScriptPointer.ProtectedActivePlayer]);
         }
 
         this.closeModal();
@@ -1319,7 +1320,7 @@ export default class Player extends PathingEntity {
 
             const script = ScriptProvider.getByName(`[if_close,${modalType.comName}]`);
             if (script) {
-                this.executeScript(ScriptRunner.init(script, this));
+                this.executeScript(ScriptRunner.init(script, this, [], [ScriptPointer.ProtectedActivePlayer]));
             }
 
             this.modalSticky = -1;
@@ -1340,7 +1341,7 @@ export default class Player extends PathingEntity {
 
             const script = ScriptProvider.getByName(`[if_close,${modalType.comName}]`);
             if (script) {
-                this.executeScript(ScriptRunner.init(script, this));
+                this.executeScript(ScriptRunner.init(script, this, [], [ScriptPointer.ProtectedActivePlayer]));
             }
 
             this.modalTop = -1;
@@ -1351,7 +1352,7 @@ export default class Player extends PathingEntity {
 
             const script = ScriptProvider.getByName(`[if_close,${modalType.comName}]`);
             if (script) {
-                this.executeScript(ScriptRunner.init(script, this));
+                this.executeScript(ScriptRunner.init(script, this, [], [ScriptPointer.ProtectedActivePlayer]));
             }
 
             this.modalBottom = -1;
@@ -1362,7 +1363,7 @@ export default class Player extends PathingEntity {
 
             const script = ScriptProvider.getByName(`[if_close,${modalType.comName}]`);
             if (script) {
-                this.executeScript(ScriptRunner.init(script, this));
+                this.executeScript(ScriptRunner.init(script, this, [], [ScriptPointer.ProtectedActivePlayer]));
             }
 
             this.modalSidebar = -1;
@@ -1437,7 +1438,7 @@ export default class Player extends PathingEntity {
             // players always decrement the queue delay regardless of any conditions below
             const delay = queue.delay--;
             if (!this.busy() && delay <= 0) {
-                const state = ScriptRunner.init(queue.script, this, null, null, queue.args);
+                const state = ScriptRunner.init(queue.script, this, [], [ScriptPointer.ProtectedActivePlayer], queue.args);
                 const executionState = ScriptRunner.execute(state);
 
                 const finished = executionState === ScriptState.ABORTED || executionState === ScriptState.FINISHED;
@@ -1462,7 +1463,7 @@ export default class Player extends PathingEntity {
         this.weakQueue = this.weakQueue.filter(queue => {
             const delay = queue.delay--;
             if (!this.busy() && delay <= 0) {
-                const state = ScriptRunner.init(queue.script, this, null, null, queue.args);
+                const state = ScriptRunner.init(queue.script, this, [], [ScriptPointer.ProtectedActivePlayer], queue.args);
                 const executionState = ScriptRunner.execute(state);
 
                 const finished = executionState === ScriptState.ABORTED || executionState === ScriptState.FINISHED;
@@ -1509,8 +1510,8 @@ export default class Player extends PathingEntity {
                 timer.clock = timer.interval;
 
                 // execute the timer
-                // TODO soft timer does not have protected access
-                const state = ScriptRunner.init(timer.script, this, null, null, timer.args);
+                const pointers = timer.type !== 'soft' ? [ScriptPointer.ProtectedActivePlayer] : [];
+                const state = ScriptRunner.init(timer.script, this, [], pointers, timer.args);
                 ScriptRunner.execute(state);
             }
         }
